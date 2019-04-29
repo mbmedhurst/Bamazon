@@ -57,6 +57,7 @@ let processOrder = (askID, howMany) => {
             console.log(e)
         } else if ("stock_quantity" >= howMany) {
             console.log('yes')
+            db.query(`UPDATE products SET stock_quantity=stock_quantity-1 WHERE item_id = ${askID}`)
         }
     })
 }
