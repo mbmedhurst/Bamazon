@@ -8,6 +8,7 @@ const db = createConnection({
     database: 'bamazon_db'
 })
 
+// displays the entire product list
 db.connect(e => {
     if (e) {
         console.log(e)
@@ -29,12 +30,13 @@ db.connect(e => {
     }
 })
 
+// function to ask customer which product they want to buy and how many
 let takeOrder = _ => {
     inquirer.prompt([
         {
             type: 'input',
             name: 'askID',
-            message: 'Please enter the ID number of the product you would like to buy?',
+            message: 'Please enter the ID number of the product you would like to buy.',
         },
         {
             type: 'input',
@@ -51,13 +53,17 @@ let takeOrder = _ => {
         .catch(e => console.log(e))
 }
 
+// function to check stock and confirm order
 let processOrder = (askID, howMany) => {
-    db.query(`SELECT stock_quantity FROM products WHERE item_id = ${askID}`, (e, r) => {
+    db.query(`SELECT stock_quantity FROM products WHERE item_id = ${askID}`, (e, data) => {
         if (e) {
             console.log(e)
-        } else if ("stock_quantity" >= howMany) {
+        } else if (data[0].stock_quantity >= howMany) {
             console.log('yes')
+            console.log(data[0].stock_quantity)
             db.query(`UPDATE products SET stock_quantity=stock_quantity-1 WHERE item_id = ${askID}`)
+        } else {
+            console.log('Insufficient Quantity!')
         }
     })
 }
