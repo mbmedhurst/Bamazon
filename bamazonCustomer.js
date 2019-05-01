@@ -9,26 +9,30 @@ const db = createConnection({
 })
 
 // displays the entire product list
-db.connect(e => {
-    if (e) {
-        console.log(e)
-    } else {
-        db.query('SELECT * FROM products', (e, data) => {
-            if (e) {
-                console.log(e)
-            } else {
-                data.forEach(({ item_id, product_name, department_name, price, stock_quantity }) => console.log(`
+let displayProducts = _ => {
+    db.connect(e => {
+        if (e) {
+            console.log(e)
+        } else {
+            db.query('SELECT * FROM products', (e, data) => {
+                if (e) {
+                    console.log(e)
+                } else {
+                    data.forEach(({ item_id, product_name, department_name, price, stock_quantity }) => console.log(`
+                **********************************
                 ID: ${item_id}
                 Product: ${product_name}
                 Department: ${department_name}
                 Price: $${price}
                 In Stock: ${stock_quantity}
+                **********************************
                 `))
-                takeOrder()
-            }
-        })
-    }
-})
+                    takeOrder()
+                }
+            })
+        }
+    })
+}
 
 // function to ask customer which product they want to buy and how many
 let takeOrder = _ => {
@@ -44,9 +48,9 @@ let takeOrder = _ => {
             message: 'How many units of this product would you like?'
         }
     ])
-        .then(({askID, howMany}) => {
-            console.log(askID)
-            console.log(howMany)
+        .then(({ askID, howMany }) => {
+            // console.log(askID)
+            // console.log(howMany)
             processOrder(askID, howMany)
 
         })
@@ -55,16 +59,34 @@ let takeOrder = _ => {
 
 // function to check stock and confirm order
 let processOrder = (askID, howMany) => {
-    db.query(`SELECT stock_quantity FROM products WHERE item_id = ${askID}`, (e, data) => {
+    db.query(`SELECT * FROM products WHERE item_id = ${askID}`, (e, [{ product_name, price, stock_quantity }]) => {
         if (e) {
             console.log(e)
-        } else if (data[0].stock_quantity >= howMany) {
-            console.log('yes')
-            console.log(data[0].stock_quantity)
-            db.query(`UPDATE products SET stock_quantity=stock_quantity-1 WHERE item_id = ${askID}`)
+        } else if (stock_quantity >= howMany) {
+            console.log(`
+                ***********************************
+                          ORDER CONFIRMATION
+                ***********************************
+
+                    Qty: ${howMany} 
+                    Product Name: ${product_name}
+                    TOTAL: $${price * howMany}
+
+                ***********************************
+            `)
+            // stock quantity is updated in the database
+            db.query(`UPDATE products SET stock_quantity=stock_quantity-${howMany} WHERE item_id = ${askID}`)
         } else {
-            console.log('Insufficient Quantity!')
+            console.log(`
+                ******************************************
+
+                Insufficient Quantity - Please try again.
+
+                ******************************************
+            `)
+            takeOrder()
         }
     })
 }
-            
+
+displayProducts()
