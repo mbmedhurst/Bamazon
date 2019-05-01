@@ -10,15 +10,11 @@ const db = createConnection({
 
 // displays the entire product list
 let displayProducts = _ => {
-    db.connect(e => {
+    db.query('SELECT * FROM products', (e, data) => {
         if (e) {
             console.log(e)
         } else {
-            db.query('SELECT * FROM products', (e, data) => {
-                if (e) {
-                    console.log(e)
-                } else {
-                    data.forEach(({ item_id, product_name, department_name, price, stock_quantity }) => console.log(`
+            data.forEach(({ item_id, product_name, department_name, price, stock_quantity }) => console.log(`
                 **********************************
                 ID: ${item_id}
                 Product: ${product_name}
@@ -27,9 +23,7 @@ let displayProducts = _ => {
                 In Stock: ${stock_quantity}
                 **********************************
                 `))
-                    takeOrder()
-                }
-            })
+            takeOrder()
         }
     })
 }
@@ -89,4 +83,7 @@ let processOrder = (askID, howMany) => {
     })
 }
 
-displayProducts()
+db.connect(e => {
+    if (e) throw e
+    displayProducts()
+})
