@@ -8,6 +8,20 @@ const db = createConnection({
     database: 'bamazon_db'
 })
 
+
+async function getProducts(columns) {
+    let response = await new Promise((resolve, reject) => {
+        db.query(`SELECT ${columns} FROM products`, (e, r) => {
+            if (e) {
+                reject(e)
+            } else {
+                resolve(r)
+            }
+        })
+    })
+    return response
+}
+
 // displays the entire product list
 let viewProducts = _ => {
     db.query('SELECT * FROM products', (e, data) => {
@@ -27,7 +41,51 @@ let viewProducts = _ => {
     })
 }
 
+// function to display low inventory items
+// let viewInventory = _ => {
+//     db.query('SELECT ? FROM products WHERE stock_quantity<100', ['item_id', 'product_name', 'stock_quantity'], (e, data) => {
+//         if (e) throw e
+//         data.forEach(({ item_id, product_name, stock_quantity }) => console.log(`
+//         ID: ${item_id}
+//         `)
+//         )
+//     })
+// }
 
+
+
+let addInventory = _ => {
+    getProducts("item_id")
+        .then(r => {
+            const productArr = r.map(({ item_id }) => item_id)
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'whichID',
+                    message: 'Which item would you like to add stock for?',
+                    choices: productArr
+                },
+                {
+                    type: 'input',
+                    name: 'howMany',
+                    message: 'How many units would you like to add?'
+                }
+            ])
+            .then(({whichID, howMany}) => {
+                console.log(whichID)
+                console.log(howMany)
+                db.query(`UPDATE products SET stock_quantity=stock_quantity+${howMany} WHERE item_id = ${whichID}`)
+                console.log(`
+                --------------
+                The stock quantity for Item ${whichID} has been updated.
+                --------------
+                `)
+            })
+        })
+        .catch(e => console.log(e))
+}
+
+// main menu options and switchcase for what each menu option does
 let mgrMenu = _ => {
     inquirer.prompt([
         {
