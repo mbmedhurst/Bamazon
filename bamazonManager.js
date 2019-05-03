@@ -8,6 +8,17 @@ const db = createConnection({
     database: 'bamazon_db'
 })
 
+// async function getInventory(columns) {
+//     let response = await new Promise((resolve, reject) => {
+//         db.query(`SELECT ${columns} FROM products WHERE stock_quantity<100`, (e, r) => {
+//             if (e) {
+//                 reject(e)
+//             } else {
+//                 resolve(r)
+//             }
+//         })
+//     })
+// }
 
 async function getProducts(columns) {
     let response = await new Promise((resolve, reject) => {
@@ -37,23 +48,28 @@ let viewProducts = _ => {
                 In Stock: ${stock_quantity}
                 **********************************
             `))
+            mgrMenu()
         }
     })
 }
 
 // function to display low inventory items
-// let viewInventory = _ => {
-//     db.query('SELECT ? FROM products WHERE stock_quantity<100', ['item_id', 'product_name', 'stock_quantity'], (e, data) => {
-//         if (e) throw e
-//         data.forEach(({ item_id, product_name, stock_quantity }) => console.log(`
-//         ID: ${item_id}
-//         `)
-//         )
-//     })
-// }
+let viewInventory = _ => {
+    db.query('SELECT * FROM products WHERE stock_quantity<100', (e, data) => {
+        if(e) console.log(e)
+        data.forEach(({item_id, product_name, stock_quantity}) => console.log(`
+        ----------------------------------------------
+        ID: ${item_id}
+        Product Name: ${product_name}
+        In Stock: ${stock_quantity}
+        ----------------------------------------------
+        `))
+        mgrMenu()
+    })
+}
 
 
-
+// function to add inventory to a specified product
 let addInventory = _ => {
     getProducts("item_id")
         .then(r => {
@@ -71,15 +87,50 @@ let addInventory = _ => {
                     message: 'How many units would you like to add?'
                 }
             ])
-            .then(({whichID, howMany}) => {
-                console.log(whichID)
-                console.log(howMany)
-                db.query(`UPDATE products SET stock_quantity=stock_quantity+${howMany} WHERE item_id = ${whichID}`)
-                console.log(`
-                --------------
-                The stock quantity for Item ${whichID} has been updated.
-                --------------
+                .then(({ whichID, howMany }) => {
+                    // console.log(whichID)
+                    // console.log(howMany)
+                    db.query(`UPDATE products SET stock_quantity=stock_quantity+${howMany} WHERE item_id = ${whichID}`)
+                    console.log(`
+                **** The stock quantity for Item ${whichID} has been updated ****
                 `)
+                    mgrMenu()
+                })
+        })
+        .catch(e => console.log(e))
+}
+
+let addProduct = _ => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'product_name',
+            message: 'What is the name of the product you would like to add?'
+        },
+        {
+            type: 'input',
+            name: 'department_name',
+            message: 'Which department should this product be associated with?'
+        },
+        {
+            type: 'input',
+            name: 'price',
+            message: 'What is the unit price of this product?',
+        },
+        {
+            type: 'input',
+            name: 'stock_quantity',
+            message: 'What is the beginniing stock quantity of this product?'
+        }
+    ])
+        .then(product => {
+            db.query('INSERT INTO products SET ?', product, (e) => {
+                if (e) throw e
+                console.log(product)
+                console.log(`
+            *** ${product.product_name} has been added to the database ***
+        `)
+                mgrMenu()
             })
         })
         .catch(e => console.log(e))
