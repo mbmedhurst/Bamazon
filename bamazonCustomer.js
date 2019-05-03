@@ -11,22 +11,19 @@ const db = createConnection({
 // displays the entire product list
 let displayProducts = _ => {
     db.query('SELECT * FROM products', (e, data) => {
-        if (e) {
-            console.log(e)
-        } else {
-            data.forEach(({ item_id, product_name, department_name, price, stock_quantity }) => console.log(`
-                **********************************
-                ID: ${item_id}
-                Product: ${product_name}
-                Department: ${department_name}
-                Price: $${price}
-                In Stock: ${stock_quantity}
-                **********************************
-                `))
-            takeOrder()
-        }
+        if (e) throw e
+        data.forEach(({ item_id, product_name, department_name, price, stock_quantity }) => console.log(`
+            **********************************
+            ID: ${item_id}
+            Product: ${product_name}
+            Department: ${department_name}
+            Price: $${price}
+            In Stock: ${stock_quantity}
+            **********************************
+            `))
+        takeOrder()
     })
-}
+    }
 
 // function to ask customer which product they want to buy and how many
 let takeOrder = _ => {
@@ -54,9 +51,8 @@ let takeOrder = _ => {
 // function to check stock and confirm order
 let processOrder = (askID, howMany) => {
     db.query(`SELECT * FROM products WHERE item_id = ${askID}`, (e, [{ product_name, price, stock_quantity }]) => {
-        if (e) {
-            console.log(e)
-        } else if (stock_quantity >= howMany) {
+        if (e) throw e
+        if (stock_quantity >= howMany) {
             console.log(`
                 ***********************************
                           ORDER CONFIRMATION

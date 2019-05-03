@@ -8,18 +8,6 @@ const db = createConnection({
     database: 'bamazon_db'
 })
 
-// async function getInventory(columns) {
-//     let response = await new Promise((resolve, reject) => {
-//         db.query(`SELECT ${columns} FROM products WHERE stock_quantity<100`, (e, r) => {
-//             if (e) {
-//                 reject(e)
-//             } else {
-//                 resolve(r)
-//             }
-//         })
-//     })
-// }
-
 async function getProducts(columns) {
     let response = await new Promise((resolve, reject) => {
         db.query(`SELECT ${columns} FROM products`, (e, r) => {
@@ -56,8 +44,8 @@ let viewProducts = _ => {
 // function to display low inventory items
 let viewInventory = _ => {
     db.query('SELECT * FROM products WHERE stock_quantity<100', (e, data) => {
-        if(e) console.log(e)
-        data.forEach(({item_id, product_name, stock_quantity}) => console.log(`
+        if (e) console.log(e)
+        data.forEach(({ item_id, product_name, stock_quantity }) => console.log(`
         ----------------------------------------------
         ID: ${item_id}
         Product Name: ${product_name}
@@ -108,9 +96,10 @@ let addProduct = _ => {
             message: 'What is the name of the product you would like to add?'
         },
         {
-            type: 'input',
+            type: 'list',
             name: 'department_name',
-            message: 'Which department should this product be associated with?'
+            message: 'Which department should this product be associated with?',
+            choices: ['Books', 'Electronics', 'Office', 'Pets', 'Toys', 'Grocery', 'Furniture', 'Entertainment - Music', 'Entertainment - Movies/TV']
         },
         {
             type: 'input',
@@ -122,11 +111,12 @@ let addProduct = _ => {
             name: 'stock_quantity',
             message: 'What is the beginniing stock quantity of this product?'
         }
+        
     ])
         .then(product => {
             db.query('INSERT INTO products SET ?', product, (e) => {
                 if (e) throw e
-                console.log(product)
+                // console.log(product)
                 console.log(`
             *** ${product.product_name} has been added to the database ***
         `)
