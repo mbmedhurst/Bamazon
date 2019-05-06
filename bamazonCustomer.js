@@ -65,7 +65,11 @@ let processOrder = (askID, howMany) => {
                 ***********************************
             `)
             // stock quantity is updated in the database
-            db.query(`UPDATE products SET stock_quantity=stock_quantity-${howMany} WHERE item_id = ${askID}`)
+            // "UPDATE products SET field1 = 'value1', field2 = '$val2', field3 = 5 WHERE
+            db.query(`UPDATE products SET stock_quantity = stock_quantity-${howMany}, product_sales = product_sales+${price*howMany} WHERE item_id = ${askID}`, (e, data) => {
+                if (e) throw e
+                
+            })
         } else {
             console.log(`
                 ******************************************
@@ -74,10 +78,10 @@ let processOrder = (askID, howMany) => {
 
                 ******************************************
             `)
+            }
             takeOrder()
-        }
-    })
-}
+    }
+    )}
 
 db.connect(e => {
     if (e) throw e

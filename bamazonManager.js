@@ -99,7 +99,7 @@ let addProduct = _ => {
             type: 'list',
             name: 'department_name',
             message: 'Which department should this product be associated with?',
-            choices: ['Books', 'Electronics', 'Office', 'Pets', 'Toys', 'Grocery', 'Furniture', 'Entertainment - Music', 'Entertainment - Movies/TV']
+            choices: ['Books', 'Electronics', 'Office', 'Pets', 'Toys', 'Grocery', 'Furniture', 'Entertainment - Music', 'Entertainment - Movies/TV', 'Pharmacy']
         },
         {
             type: 'input',
@@ -110,8 +110,14 @@ let addProduct = _ => {
             type: 'input',
             name: 'stock_quantity',
             message: 'What is the beginniing stock quantity of this product?'
+        },
+        {
+            type: 'input',
+            name: 'product_sales',
+            message: 'What is the ytd sales total for this product? Entering 0.00 is ok.'
         }
-        
+
+
     ])
         .then(product => {
             db.query('INSERT INTO products SET ?', product, (e) => {

@@ -1,6 +1,11 @@
-1200,Books,250000
-1201,Electronics,925000
-1202,Grocery,750000
-1203,Office,350000
-1204,Pets,245000
-1205,Toys,465000
+"department_id";"department_name";"overhead_costs"
+18001;"Books";75000.0
+18002;"Electronics";750000.0
+18003;"Office";545000.0
+18004;"Pets";650000.0
+18005;"Toys";310000.0
+18006;"Grocery";165500.0
+18007;"Furniture";298300.0
+18008;"Entertainment - Music";22000.0
+18009;"Entertainment - Movies/TV";65000.0
+18010;"Pharmacy";22000.0
